@@ -1,13 +1,12 @@
 package access_token
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"github.com/stretchr/testify/assert"
 )
 
-
-func TestAccessTokenConstants (t *testing.T) {
+func TestAccessTokenConstants(t *testing.T) {
 	assert.EqualValues(t, 24, expirationTime, "expiration time should by 24 hours")
 }
 
@@ -16,7 +15,7 @@ func TestGetNewAccessToken(t *testing.T) {
 	// assert.False(t, at.IsExpired(), "new accesstoken should not be expired")
 	assert.EqualValues(t, at.AccessToken, "", "new access token should not have defined id")
 	assert.EqualValues(t, at.UserId, 0, "new access token should not have defined user_id")
-} 
+}
 
 func TestAccessTokenIsExpired(t *testing.T) {
 	at := AccessToken{}

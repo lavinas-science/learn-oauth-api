@@ -7,7 +7,6 @@ import (
 	"github.com/lavinas-science/learn-oauth-api/repository/db"
 )
 
-
 var (
 	router = gin.Default()
 )

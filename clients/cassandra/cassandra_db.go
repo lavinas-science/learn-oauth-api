@@ -8,7 +8,6 @@ var (
 	session *gocql.Session
 )
 
-
 func init() {
 	// Connect to Cassandra Cluster
 	cluster := gocql.NewCluster("127.0.0.1")
@@ -20,6 +19,6 @@ func init() {
 	}
 }
 
-func GetSession() (*gocql.Session) {
+func GetSession() *gocql.Session {
 	return session
 }

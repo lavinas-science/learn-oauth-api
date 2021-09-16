@@ -4,18 +4,18 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/lavinas-science/learn-oauth-api/domain/users"
 	"github.com/lavinas-science/learn-oauth-api/utils/errors"
-	"github.com/mercadolibre/golang-restclient/rest"
 )
 
 var (
-	usersrestClient = rest.RequestBuilder{
-		BaseURL: "https://api.bookstore.com",
-		Timeout: 100 * time.Millisecond,
-	}
+	client = resty.New()
 )
 
+func init() {
+	client.SetTimeout(1 * time.Second)
+}
 
 type RestUsersRepository interface {
 	LoginUser(string, string) (*users.User, *errors.RestErr)
@@ -29,26 +29,28 @@ func NewRepository() RestUsersRepository {
 }
 
 func (r *restUsersRepository) LoginUser(email string, password string) (*users.User, *errors.RestErr) {
-	request := users.Login {
-		Email: email,
+	var restErr errors.RestErr
+	var user users.User
+	request := users.Login{
+		Email:    email,
 		Password: password,
 	}
-	response := usersrestClient.Post("/users/login", request)
-	if response == nil || response.Response == nil {
-		return nil, errors.NewInternalServerError("invalid rest-client error response when trying login user")
+	resp, err := client.R().
+		SetHeader("Content-Type", "application/json").
+		SetBody(request).
+		Post("https://api.bookstore.com/users/login")
+	if err != nil {
+		return nil, errors.NewInternalServerError("Login api call error")
 	}
-	if response.StatusCode > 299 {
-		var restErr errors.RestErr
-		err := json.Unmarshal(response.Bytes(), &restErr)
-		if err != nil {
-			return nil, errors.NewInternalServerError("invalid error interface response when trying login user")
+	if resp.RawResponse.StatusCode > 299 {
+		if err := json.Unmarshal(resp.Body(),&restErr); err != nil {
+			return nil, errors.NewInternalServerError("invalid rest-client error unmarshall error") 
 		}
 		return nil, &restErr
 	}
-	var user users.User
-	if err := json.Unmarshal(response.Bytes(), &user); err != nil {
-		return nil, errors.NewInternalServerError("invalid rest-client response when trying login user")
+	if err := json.Unmarshal(resp.Body(),&user); err != nil {
+		return nil, errors.NewInternalServerError("Invalid rest-client error unmarshall client") 
 	}
+
 	return &user, nil
 }
-
