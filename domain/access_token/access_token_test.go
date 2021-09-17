@@ -11,10 +11,11 @@ func TestAccessTokenConstants(t *testing.T) {
 }
 
 func TestGetNewAccessToken(t *testing.T) {
-	at := GetNewAccessToken()
-	// assert.False(t, at.IsExpired(), "new accesstoken should not be expired")
-	assert.EqualValues(t, at.AccessToken, "", "new access token should not have defined id")
-	assert.EqualValues(t, at.UserId, 0, "new access token should not have defined user_id")
+	at := GetNewAccessToken(100)
+	assert.EqualValues(t, at.UserId, 100)
+	assert.EqualValues(t, at.ClientId, 100)
+	assert.Greater(t, at.Expires, time.Now().UTC().Add(expirationTime * time.Hour - 10 * time.Minute).Unix())
+	assert.Less(t, at.Expires, time.Now().UTC().Add(expirationTime * time.Hour + 10 * time.Minute).Unix())
 }
 
 func TestAccessTokenIsExpired(t *testing.T) {

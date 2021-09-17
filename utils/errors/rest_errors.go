@@ -25,3 +25,7 @@ func NewNotFoundError(message string) *RestErr {
 func NewInternalServerError(message string) *RestErr {
 	return NewRestErr(message, http.StatusInternalServerError, "internal_server_error")
 }
+
+func NewNotImplementedError(message string) *RestErr {
+	return NewRestErr(message, http.StatusNotImplemented, "not_implemented")
+}

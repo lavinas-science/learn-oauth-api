@@ -4,6 +4,7 @@ import (
 	"github.com/gocql/gocql"
 	"github.com/lavinas-science/learn-oauth-api/clients/cassandra"
 	"github.com/lavinas-science/learn-oauth-api/domain/access_token"
+	"github.com/lavinas-science/learn-oauth-api/domain/users"
 	"github.com/lavinas-science/learn-oauth-api/utils/errors"
 )
 
@@ -17,6 +18,7 @@ type DbRepository interface {
 	GetById(string) (*access_token.AccessToken, *errors.RestErr)
 	Create(access_token.AccessToken) *errors.RestErr
 	UpdateExpires(access_token.AccessToken) *errors.RestErr
+	LoginUser(string, string) (*users.User, *errors.RestErr)
 }
 
 type dbRepository struct {
@@ -57,4 +59,9 @@ func (r *dbRepository) UpdateExpires(at access_token.AccessToken) *errors.RestEr
 		return errors.NewInternalServerError(err.Error())
 	}
 	return nil
+}
+
+
+func (r *dbRepository) LoginUser(string, string) (*users.User, *errors.RestErr) {
+	return nil, errors.NewNotImplementedError("Not implemented")
 }
