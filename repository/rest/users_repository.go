@@ -12,6 +12,10 @@ import (
 
 var (
 	client = resty.New()
+	UserContentType = "application/json"
+	UserBaseURI = "http://127.0.0.1:8080"
+	UserURI = "/users/login"
+	PingURI = "/ping"
 )
 
 func init() {
@@ -23,10 +27,15 @@ type RestUsersRepository interface {
 	Create(access_token.AccessToken) *errors.RestErr
 	UpdateExpires(access_token.AccessToken) *errors.RestErr
 	LoginUser(string, string) (*users.User, *errors.RestErr)
-
+	Ping() bool
 }
 
 type restUsersRepository struct {
+}
+
+type clientRequest struct {
+	Email string `json:"email"`
+	Password string `json:"password"`
 }
 
 func NewRepository() RestUsersRepository {
@@ -36,14 +45,11 @@ func NewRepository() RestUsersRepository {
 func (r *restUsersRepository) LoginUser(email string, password string) (*users.User, *errors.RestErr) {
 	var restErr errors.RestErr
 	var user users.User
-	request := access_token.AccessTokenRequest{
-		Username: email,
-		Password: password,
-	}
+	request := clientRequest{Email: email, Password: password}
 	resp, err := client.R().
-		SetHeader("Content-Type", "application/json").
+		SetHeader("Content-Type",UserContentType).
 		SetBody(request).
-		Post("https://api.bookstore.com/users/login")
+		Post(UserBaseURI + UserURI)
 	if err != nil {
 		return nil, errors.NewInternalServerError("Login api call error")
 	}
@@ -56,7 +62,6 @@ func (r *restUsersRepository) LoginUser(email string, password string) (*users.U
 	if err := json.Unmarshal(resp.Body(), &user); err != nil {
 		return nil, errors.NewInternalServerError("Invalid rest-client error unmarshall client")
 	}
-
 	return &user, nil
 }
 
@@ -71,3 +76,15 @@ func (r *restUsersRepository) Create(access_token.AccessToken) *errors.RestErr {
 func (r *restUsersRepository) UpdateExpires(access_token.AccessToken) *errors.RestErr {
 	return errors.NewNotImplementedError("Not implemented")
 }
+
+func (r *restUsersRepository) Ping() bool {
+	url := UserBaseURI + PingURI
+	resp, err := client.R().Execute("GET", url)
+	if err != nil {
+		return false
+	}
+	if resp.RawResponse.StatusCode != 200 {
+		return false
+	}
+	return true
+} 

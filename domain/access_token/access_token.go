@@ -34,7 +34,7 @@ func (at *AccessTokenRequest) Validate() *errors.RestErr {
 	case grandTypeClientCredentials:
 		break
 	default:
-		return errors.NewBadRequestError("invalid grand_type parameter")
+		return errors.NewBadRequestError(" ")
 	}
 	return nil
 }

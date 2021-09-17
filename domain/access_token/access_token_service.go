@@ -14,14 +14,14 @@ const (
 
 type Repository interface {
 	GetById(string) (*AccessToken, *errors.RestErr)
-	Create(AccessToken) *errors.RestErr
+	Create(AccessToken) (*errors.RestErr)
 	UpdateExpires(AccessToken) *errors.RestErr
 	LoginUser(string, string) (*users.User, *errors.RestErr)
 }
 
 type Service interface {
 	GetById(string) (*AccessToken, *errors.RestErr)
-	Create(AccessTokenRequest) *errors.RestErr
+	Create(AccessTokenRequest) (*AccessToken, *errors.RestErr)
 	UpdateExpires(AccessToken) *errors.RestErr
 }
 
@@ -45,19 +45,19 @@ func (s *service) GetById(accessTokenId string) (*AccessToken, *errors.RestErr) 
 	return s.db_repository.GetById(accessTokenId)
 }
 
-func (s *service) Create(atr AccessTokenRequest) *errors.RestErr {
+func (s *service) Create(atr AccessTokenRequest) (*AccessToken, *errors.RestErr) {
 	if err := atr.Validate(); err != nil {
-		return err
+		return nil, err
 	}
 	user, err := s.user_repository.LoginUser(atr.Username, atr.Password)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	at := GetNewAccessToken(user.Id)
 	if err := s.db_repository.Create(at); err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return &at, nil
 }
 
 func (s *service) UpdateExpires(at AccessToken) *errors.RestErr {
