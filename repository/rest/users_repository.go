@@ -16,13 +16,15 @@ const (
 	UserBaseURI = "http://127.0.0.1:8080"
 	UserURI = "/users/login"
 	PingURI = "/ping"
+	timeoutSeconds = 1
+
 )
 var (
 	client = resty.New()
 )
 
 func init() {
-	client.SetTimeout(1 * time.Second)
+	client.SetTimeout(timeoutSeconds * time.Second)
 }
 
 type RestUsersRepository interface {
