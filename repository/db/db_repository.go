@@ -19,6 +19,7 @@ type DbRepository interface {
 	Create(access_token.AccessToken) *errors.RestErr
 	UpdateExpires(access_token.AccessToken) *errors.RestErr
 	LoginUser(string, string) (*users.User, *errors.RestErr)
+	Ping() bool
 }
 
 type dbRepository struct {
@@ -64,4 +65,8 @@ func (r *dbRepository) UpdateExpires(at access_token.AccessToken) *errors.RestEr
 
 func (r *dbRepository) LoginUser(string, string) (*users.User, *errors.RestErr) {
 	return nil, errors.NewNotImplementedError("Not implemented")
+}
+
+func (r *dbRepository) Ping() bool {
+	return false
 }

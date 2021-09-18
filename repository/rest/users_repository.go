@@ -10,12 +10,15 @@ import (
 	"github.com/lavinas-science/learn-oauth-api/utils/errors"
 )
 
-var (
-	client = resty.New()
+
+const (
 	UserContentType = "application/json"
 	UserBaseURI = "http://127.0.0.1:8080"
 	UserURI = "/users/login"
 	PingURI = "/ping"
+)
+var (
+	client = resty.New()
 )
 
 func init() {

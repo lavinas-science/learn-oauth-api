@@ -17,6 +17,7 @@ type Repository interface {
 	Create(AccessToken) (*errors.RestErr)
 	UpdateExpires(AccessToken) *errors.RestErr
 	LoginUser(string, string) (*users.User, *errors.RestErr)
+	Ping() bool
 }
 
 type Service interface {
