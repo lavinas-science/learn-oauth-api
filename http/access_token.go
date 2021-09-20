@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lavinas-science/learn-oauth-api/domain/access_token"
-	"github.com/lavinas-science/learn-oauth-api/utils/errors"
+	"github.com/lavinas-science/learn-utils-go/rest_errors"
 )
 
 type AccessTokenHandler interface {
@@ -36,7 +36,7 @@ func (h *accessTokenHandler) GetById(c *gin.Context) {
 func (h *accessTokenHandler) Create(c *gin.Context) {
 	var atr access_token.AccessTokenRequest
 	if err := c.ShouldBindJSON(&atr); err != nil {
-		rError := errors.NewBadRequestError("invalid json body")
+		rError := rest_errors.NewBadRequestError("invalid json body")
 		c.JSON(rError.Status, rError)
 		return
 	}

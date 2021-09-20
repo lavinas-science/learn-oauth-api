@@ -10,7 +10,7 @@ import (
 	"github.com/jarcoal/httpmock"
 	"github.com/lavinas-science/learn-oauth-api/domain/access_token"
 	"github.com/lavinas-science/learn-oauth-api/domain/users"
-	"github.com/lavinas-science/learn-oauth-api/utils/errors"
+	"github.com/lavinas-science/learn-utils-go/rest_errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -88,7 +88,7 @@ func TestLoginInvalidUserInterface(t *testing.T) {
 
 func TestLoginInvalidLoginCredentials(t *testing.T) {
 	// Mock response
-	errRest := errors.RestErr{Status: http.StatusNotFound, Error: "not_found", Message: "No record found"}
+	errRest := rest_errors.RestErr{Status: http.StatusNotFound, Error: "not_found", Message: "No record found"}
 	resp, _ := httpmock.NewJsonResponder(http.StatusNotFound, errRest)
 	httpmock.RegisterResponder("POST", UserBaseURI + UserURI, resp)
 	rep := NewRepository()

@@ -5,7 +5,7 @@ import (
 	"github.com/lavinas-science/learn-oauth-api/clients/cassandra"
 	"github.com/lavinas-science/learn-oauth-api/domain/access_token"
 	"github.com/lavinas-science/learn-oauth-api/domain/users"
-	"github.com/lavinas-science/learn-oauth-api/utils/errors"
+	"github.com/lavinas-science/learn-utils-go/rest_errors"
 )
 
 const (
@@ -15,10 +15,10 @@ const (
 )
 
 type DbRepository interface {
-	GetById(string) (*access_token.AccessToken, *errors.RestErr)
-	Create(access_token.AccessToken) *errors.RestErr
-	UpdateExpires(access_token.AccessToken) *errors.RestErr
-	LoginUser(string, string) (*users.User, *errors.RestErr)
+	GetById(string) (*access_token.AccessToken, *rest_errors.RestErr)
+	Create(access_token.AccessToken) *rest_errors.RestErr
+	UpdateExpires(access_token.AccessToken) *rest_errors.RestErr
+	LoginUser(string, string) (*users.User, *rest_errors.RestErr)
 	Ping() bool
 }
 
@@ -29,42 +29,42 @@ func NewRepository() DbRepository {
 	return &dbRepository{}
 }
 
-func (r *dbRepository) GetById(id string) (*access_token.AccessToken, *errors.RestErr) {
+func (r *dbRepository) GetById(id string) (*access_token.AccessToken, *rest_errors.RestErr) {
 	session := cassandra.GetSession()
 	var at access_token.AccessToken
 	if err := session.Query(getAccessToken, id).Scan(
 		&at.AccessToken, &at.UserId, &at.ClientId, &at.Expires); err != nil {
 		if err == gocql.ErrNotFound {
-			return nil, errors.NewNotFoundError("no access token found with given id")
+			return nil, rest_errors.NewNotFoundError("no access token found with given id")
 		}
-		return nil, errors.NewInternalServerError(err.Error())
+		return nil, rest_errors.NewInternalServerError(err.Error())
 
 	}
 	return &at, nil
 }
 
-func (r *dbRepository) Create(at access_token.AccessToken) *errors.RestErr {
+func (r *dbRepository) Create(at access_token.AccessToken) *rest_errors.RestErr {
 	session := cassandra.GetSession()
 	if err := session.Query(
 		createAccessToken, at.AccessToken, at.UserId,
 		at.ClientId, at.Expires).Exec(); err != nil {
-		return errors.NewInternalServerError(err.Error())
+		return rest_errors.NewInternalServerError(err.Error())
 	}
 	return nil
 }
 
-func (r *dbRepository) UpdateExpires(at access_token.AccessToken) *errors.RestErr {
+func (r *dbRepository) UpdateExpires(at access_token.AccessToken) *rest_errors.RestErr {
 	session := cassandra.GetSession()
 	if err := session.Query(
 		updateAccessToken, at.Expires, at.AccessToken).Exec(); err != nil {
-		return errors.NewInternalServerError(err.Error())
+		return rest_errors.NewInternalServerError(err.Error())
 	}
 	return nil
 }
 
 
-func (r *dbRepository) LoginUser(string, string) (*users.User, *errors.RestErr) {
-	return nil, errors.NewNotImplementedError("Not implemented")
+func (r *dbRepository) LoginUser(string, string) (*users.User, *rest_errors.RestErr) {
+	return nil, rest_errors.NewNotImplementedError("Not implemented")
 }
 
 func (r *dbRepository) Ping() bool {

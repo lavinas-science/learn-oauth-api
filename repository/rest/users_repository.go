@@ -7,7 +7,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/lavinas-science/learn-oauth-api/domain/access_token"
 	"github.com/lavinas-science/learn-oauth-api/domain/users"
-	"github.com/lavinas-science/learn-oauth-api/utils/errors"
+	"github.com/lavinas-science/learn-utils-go/rest_errors"
 )
 
 
@@ -28,10 +28,10 @@ func init() {
 }
 
 type RestUsersRepository interface {
-	GetById(string) (*access_token.AccessToken, *errors.RestErr)
-	Create(access_token.AccessToken) *errors.RestErr
-	UpdateExpires(access_token.AccessToken) *errors.RestErr
-	LoginUser(string, string) (*users.User, *errors.RestErr)
+	GetById(string) (*access_token.AccessToken, *rest_errors.RestErr)
+	Create(access_token.AccessToken) *rest_errors.RestErr
+	UpdateExpires(access_token.AccessToken) *rest_errors.RestErr
+	LoginUser(string, string) (*users.User, *rest_errors.RestErr)
 	Ping() bool
 }
 
@@ -47,8 +47,8 @@ func NewRepository() RestUsersRepository {
 	return &restUsersRepository{}
 }
 
-func (r *restUsersRepository) LoginUser(email string, password string) (*users.User, *errors.RestErr) {
-	var restErr errors.RestErr
+func (r *restUsersRepository) LoginUser(email string, password string) (*users.User, *rest_errors.RestErr) {
+	var restErr rest_errors.RestErr
 	var user users.User
 	request := clientRequest{Email: email, Password: password}
 	resp, err := client.R().
@@ -56,30 +56,30 @@ func (r *restUsersRepository) LoginUser(email string, password string) (*users.U
 		SetBody(request).
 		Post(UserBaseURI + UserURI)
 	if err != nil {
-		return nil, errors.NewInternalServerError("Login api call error")
+		return nil, rest_errors.NewInternalServerError("Login api call error")
 	}
 	if resp.RawResponse.StatusCode > 299 {
 		if err := json.Unmarshal(resp.Body(), &restErr); err != nil {
-			return nil, errors.NewInternalServerError("invalid rest-client error unmarshall error")
+			return nil, rest_errors.NewInternalServerError("invalid rest-client error unmarshall error")
 		}
 		return nil, &restErr
 	}
 	if err := json.Unmarshal(resp.Body(), &user); err != nil {
-		return nil, errors.NewInternalServerError("Invalid rest-client error unmarshall client")
+		return nil, rest_errors.NewInternalServerError("Invalid rest-client error unmarshall client")
 	}
 	return &user, nil
 }
 
-func (r *restUsersRepository) GetById(string) (*access_token.AccessToken, *errors.RestErr) {
-	return nil, errors.NewNotImplementedError("Not implemented")
+func (r *restUsersRepository) GetById(string) (*access_token.AccessToken, *rest_errors.RestErr) {
+	return nil, rest_errors.NewNotImplementedError("Not implemented")
 }
 
-func (r *restUsersRepository) Create(access_token.AccessToken) *errors.RestErr {
-	return errors.NewNotImplementedError("Not implemented")
+func (r *restUsersRepository) Create(access_token.AccessToken) *rest_errors.RestErr {
+	return rest_errors.NewNotImplementedError("Not implemented")
 }
 
-func (r *restUsersRepository) UpdateExpires(access_token.AccessToken) *errors.RestErr {
-	return errors.NewNotImplementedError("Not implemented")
+func (r *restUsersRepository) UpdateExpires(access_token.AccessToken) *rest_errors.RestErr {
+	return rest_errors.NewNotImplementedError("Not implemented")
 }
 
 func (r *restUsersRepository) Ping() bool {

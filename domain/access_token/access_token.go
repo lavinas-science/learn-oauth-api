@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"encoding/hex"
 
-	"github.com/lavinas-science/learn-oauth-api/utils/errors"
+	"github.com/lavinas-science/learn-utils-go/rest_errors"
 )
 
 const (
@@ -26,7 +26,7 @@ type AccessTokenRequest struct {
 }
 
 
-func (at *AccessTokenRequest) Validate() *errors.RestErr {
+func (at *AccessTokenRequest) Validate() *rest_errors.RestErr {
 
 	switch at.GrantType {
 	case grandTypePassword:
@@ -34,7 +34,7 @@ func (at *AccessTokenRequest) Validate() *errors.RestErr {
 	case grandTypeClientCredentials:
 		break
 	default:
-		return errors.NewBadRequestError(" ")
+		return rest_errors.NewBadRequestError(" ")
 	}
 	return nil
 }
@@ -47,19 +47,19 @@ type AccessToken struct {
 }
 
 
-func (at *AccessToken) Validate() *errors.RestErr {
+func (at *AccessToken) Validate() *rest_errors.RestErr {
 	at.AccessToken = strings.TrimSpace(at.AccessToken)
 	if at.AccessToken == "" {
-		return errors.NewBadRequestError("invalid access token id")
+		return rest_errors.NewBadRequestError("invalid access token id")
 	}
 	if at.ClientId <= 0 {
-		return errors.NewBadRequestError("invalid client id")
+		return rest_errors.NewBadRequestError("invalid client id")
 	}
 	if at.UserId <= 0 {
-		return errors.NewBadRequestError("invalid user id")
+		return rest_errors.NewBadRequestError("invalid user id")
 	}
 	if at.Expires <= 0 {
-		return errors.NewBadRequestError("invalid expiration time")
+		return rest_errors.NewBadRequestError("invalid expiration time")
 	}
 	return nil
 
