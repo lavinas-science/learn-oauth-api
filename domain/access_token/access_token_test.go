@@ -14,8 +14,8 @@ func TestGetNewAccessToken(t *testing.T) {
 	at := GetNewAccessToken(100)
 	assert.EqualValues(t, at.UserId, 100)
 	assert.EqualValues(t, at.ClientId, 100)
-	assert.Greater(t, at.Expires, time.Now().UTC().Add(expirationTime * time.Hour - 10 * time.Minute).Unix())
-	assert.Less(t, at.Expires, time.Now().UTC().Add(expirationTime * time.Hour + 10 * time.Minute).Unix())
+	assert.Greater(t, at.Expires, time.Now().UTC().Add(expirationTime*time.Hour-10*time.Minute).Unix())
+	assert.Less(t, at.Expires, time.Now().UTC().Add(expirationTime*time.Hour+10*time.Minute).Unix())
 }
 
 func TestAccessTokenIsExpired(t *testing.T) {

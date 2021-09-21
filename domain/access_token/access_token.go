@@ -1,30 +1,28 @@
 package access_token
 
 import (
+	"encoding/hex"
+	"math/rand"
 	"strings"
 	"time"
-	"math/rand"
-	"encoding/hex"
 
 	"github.com/lavinas-science/learn-utils-go/rest_errors"
 )
 
 const (
-	expirationTime = 24
-	grandTypePassword = "password"
+	expirationTime             = 24
+	grandTypePassword          = "password"
 	grandTypeClientCredentials = "client_credentials"
 )
 
-
 type AccessTokenRequest struct {
-	GrantType string `json:"grand_type"`
-	Scope string `json:"scope"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	ClientId string `json:"client_id"`
+	GrantType    string `json:"grand_type"`
+	Scope        string `json:"scope"`
+	Username     string `json:"username"`
+	Password     string `json:"password"`
+	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
 }
-
 
 func (at *AccessTokenRequest) Validate() *rest_errors.RestErr {
 
@@ -45,7 +43,6 @@ type AccessToken struct {
 	ClientId    int64  `json:"client_id"`
 	Expires     int64  `json:"expires"`
 }
-
 
 func (at *AccessToken) Validate() *rest_errors.RestErr {
 	at.AccessToken = strings.TrimSpace(at.AccessToken)
@@ -71,9 +68,9 @@ func GetNewAccessToken(user_id int64) AccessToken {
 	token := hex.EncodeToString(b)
 	return AccessToken{
 		AccessToken: token,
-		UserId: user_id,
-		ClientId: user_id,
-		Expires: time.Now().UTC().Add(expirationTime * time.Hour).Unix(),
+		UserId:      user_id,
+		ClientId:    user_id,
+		Expires:     time.Now().UTC().Add(expirationTime * time.Hour).Unix(),
 	}
 }
 

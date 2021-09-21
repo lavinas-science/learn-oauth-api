@@ -23,12 +23,12 @@ func TestMain(m *testing.M) {
 		httpmock.ActivateNonDefault(client.GetClient())
 		defer httpmock.DeactivateAndReset()
 	}
-		os.Exit(m.Run())
+	os.Exit(m.Run())
 }
 
 func TestLoginTimeoutFromApi(t *testing.T) {
 	// Mock response
-	httpmock.RegisterResponder("POST", UserBaseURI + UserURI,
+	httpmock.RegisterResponder("POST", UserBaseURI+UserURI,
 		func(req *http.Request) (*http.Response, error) {
 			var lg access_token.AccessTokenRequest
 			if err := json.NewDecoder(req.Body).Decode(&lg); err != nil {
@@ -54,7 +54,7 @@ func TestLoginTimeoutFromApi(t *testing.T) {
 }
 
 func TestLoginInvalidErrorInterface(t *testing.T) {
-	httpmock.RegisterResponder("POST", UserBaseURI + UserURI,
+	httpmock.RegisterResponder("POST", UserBaseURI+UserURI,
 		httpmock.NewStringResponder(http.StatusInternalServerError, ``))
 	rep := NewRepository()
 	user, err := rep.LoginUser("login@user.com", "passwd")
@@ -65,7 +65,7 @@ func TestLoginInvalidErrorInterface(t *testing.T) {
 }
 
 func TestLoginInvalidErrorInterface2(t *testing.T) {
-	httpmock.RegisterResponder("POST", UserBaseURI + UserURI,
+	httpmock.RegisterResponder("POST", UserBaseURI+UserURI,
 		httpmock.NewStringResponder(http.StatusInternalServerError, `"xxx": 123`))
 	rep := NewRepository()
 	user, err := rep.LoginUser("login@user.com", "passwd")
@@ -76,7 +76,7 @@ func TestLoginInvalidErrorInterface2(t *testing.T) {
 }
 
 func TestLoginInvalidUserInterface(t *testing.T) {
-	httpmock.RegisterResponder("POST", UserBaseURI + UserURI,
+	httpmock.RegisterResponder("POST", UserBaseURI+UserURI,
 		httpmock.NewStringResponder(http.StatusOK, ``))
 	rep := NewRepository()
 	user, err := rep.LoginUser("login@user.com", "passwd")
@@ -90,7 +90,7 @@ func TestLoginInvalidLoginCredentials(t *testing.T) {
 	// Mock response
 	errRest := rest_errors.RestErr{Status: http.StatusNotFound, Error: "not_found", Message: "No record found"}
 	resp, _ := httpmock.NewJsonResponder(http.StatusNotFound, errRest)
-	httpmock.RegisterResponder("POST", UserBaseURI + UserURI, resp)
+	httpmock.RegisterResponder("POST", UserBaseURI+UserURI, resp)
 	rep := NewRepository()
 	user, err := rep.LoginUser("login@user.com", "passwd")
 	assert.Nil(t, user)
@@ -103,7 +103,7 @@ func TestLoginInvalidLoginCredentials(t *testing.T) {
 
 func TestLoginOk(t *testing.T) {
 	// Mock response
-	httpmock.RegisterResponder("POST", UserBaseURI + UserURI,
+	httpmock.RegisterResponder("POST", UserBaseURI+UserURI,
 		func(req *http.Request) (*http.Response, error) {
 			var lg access_token.AccessTokenRequest
 			if err := json.NewDecoder(req.Body).Decode(&lg); err != nil {
@@ -128,10 +128,9 @@ func TestLoginOk(t *testing.T) {
 	assert.EqualValues(t, "login@user.com", user.Email)
 }
 
-
 func TestIntegration(t *testing.T) {
-	httpmock.RegisterResponder("POST", UserBaseURI + UserURI,
-	httpmock.NewStringResponder(http.StatusNotFound, `{"status": 404, "error": "not_found"}`))
+	httpmock.RegisterResponder("POST", UserBaseURI+UserURI,
+		httpmock.NewStringResponder(http.StatusNotFound, `{"status": 404, "error": "not_found"}`))
 	// call func
 	rep := NewRepository()
 	user, err := rep.LoginUser("user@user.com1", "user 1")
@@ -142,8 +141,8 @@ func TestIntegration(t *testing.T) {
 }
 
 func TestPing(t *testing.T) {
-	httpmock.RegisterResponder("GET", UserBaseURI + PingURI,
-	httpmock.NewStringResponder(http.StatusOK, `{"message": "pong"}`))
+	httpmock.RegisterResponder("GET", UserBaseURI+PingURI,
+		httpmock.NewStringResponder(http.StatusOK, `{"message": "pong"}`))
 	// call func
 	rep := NewRepository()
 	b := rep.Ping()

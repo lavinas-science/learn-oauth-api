@@ -1,6 +1,5 @@
 package access_token
 
-
 import (
 	"strings"
 
@@ -14,7 +13,7 @@ const (
 
 type Repository interface {
 	GetById(string) (*AccessToken, *rest_errors.RestErr)
-	Create(AccessToken) (*rest_errors.RestErr)
+	Create(AccessToken) *rest_errors.RestErr
 	UpdateExpires(AccessToken) *rest_errors.RestErr
 	LoginUser(string, string) (*users.User, *rest_errors.RestErr)
 	Ping() bool
@@ -27,13 +26,13 @@ type Service interface {
 }
 
 type service struct {
-	db_repository Repository
+	db_repository   Repository
 	user_repository Repository
 }
 
 func NewService(db_repo Repository, user_repo Repository) Service {
 	return &service{
-		db_repository: db_repo,
+		db_repository:   db_repo,
 		user_repository: user_repo,
 	}
 }

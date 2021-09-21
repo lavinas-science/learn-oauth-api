@@ -62,7 +62,6 @@ func (r *dbRepository) UpdateExpires(at access_token.AccessToken) *rest_errors.R
 	return nil
 }
 
-
 func (r *dbRepository) LoginUser(string, string) (*users.User, *rest_errors.RestErr) {
 	return nil, rest_errors.NewNotImplementedError("Not implemented")
 }

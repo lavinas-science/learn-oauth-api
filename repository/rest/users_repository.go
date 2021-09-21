@@ -10,15 +10,14 @@ import (
 	"github.com/lavinas-science/learn-utils-go/rest_errors"
 )
 
-
 const (
 	UserContentType = "application/json"
-	UserBaseURI = "http://127.0.0.1:8080"
-	UserURI = "/users/login"
-	PingURI = "/ping"
-	timeoutSeconds = 1
-
+	UserBaseURI     = "http://127.0.0.1:8080"
+	UserURI         = "/users/login"
+	PingURI         = "/ping"
+	timeoutSeconds  = 1
 )
+
 var (
 	client = resty.New()
 )
@@ -39,7 +38,7 @@ type restUsersRepository struct {
 }
 
 type clientRequest struct {
-	Email string `json:"email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -52,7 +51,7 @@ func (r *restUsersRepository) LoginUser(email string, password string) (*users.U
 	var user users.User
 	request := clientRequest{Email: email, Password: password}
 	resp, err := client.R().
-		SetHeader("Content-Type",UserContentType).
+		SetHeader("Content-Type", UserContentType).
 		SetBody(request).
 		Post(UserBaseURI + UserURI)
 	if err != nil {
@@ -92,4 +91,4 @@ func (r *restUsersRepository) Ping() bool {
 		return false
 	}
 	return true
-} 
+}
