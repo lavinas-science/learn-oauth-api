@@ -24,7 +24,7 @@ type AccessTokenRequest struct {
 	ClientSecret string `json:"client_secret"`
 }
 
-func (at *AccessTokenRequest) Validate() *rest_errors.RestErr {
+func (at *AccessTokenRequest) Validate() rest_errors.RestErr {
 
 	switch at.GrantType {
 	case grandTypePassword:
@@ -44,7 +44,7 @@ type AccessToken struct {
 	Expires     int64  `json:"expires"`
 }
 
-func (at *AccessToken) Validate() *rest_errors.RestErr {
+func (at *AccessToken) Validate() rest_errors.RestErr {
 	at.AccessToken = strings.TrimSpace(at.AccessToken)
 	if at.AccessToken == "" {
 		return rest_errors.NewBadRequestError("invalid access token id")

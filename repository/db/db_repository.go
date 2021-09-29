@@ -15,10 +15,10 @@ const (
 )
 
 type DbRepository interface {
-	GetById(string) (*access_token.AccessToken, *rest_errors.RestErr)
-	Create(access_token.AccessToken) *rest_errors.RestErr
-	UpdateExpires(access_token.AccessToken) *rest_errors.RestErr
-	LoginUser(string, string) (*users.User, *rest_errors.RestErr)
+	GetById(string) (*access_token.AccessToken, rest_errors.RestErr)
+	Create(access_token.AccessToken) rest_errors.RestErr
+	UpdateExpires(access_token.AccessToken) rest_errors.RestErr
+	LoginUser(string, string) (*users.User, rest_errors.RestErr)
 	Ping() bool
 }
 
@@ -29,7 +29,7 @@ func NewRepository() DbRepository {
 	return &dbRepository{}
 }
 
-func (r *dbRepository) GetById(id string) (*access_token.AccessToken, *rest_errors.RestErr) {
+func (r *dbRepository) GetById(id string) (*access_token.AccessToken, rest_errors.RestErr) {
 	session := cassandra.GetSession()
 	var at access_token.AccessToken
 	if err := session.Query(getAccessToken, id).Scan(
@@ -43,7 +43,7 @@ func (r *dbRepository) GetById(id string) (*access_token.AccessToken, *rest_erro
 	return &at, nil
 }
 
-func (r *dbRepository) Create(at access_token.AccessToken) *rest_errors.RestErr {
+func (r *dbRepository) Create(at access_token.AccessToken) rest_errors.RestErr {
 	session := cassandra.GetSession()
 	if err := session.Query(
 		createAccessToken, at.AccessToken, at.UserId,
@@ -53,7 +53,7 @@ func (r *dbRepository) Create(at access_token.AccessToken) *rest_errors.RestErr 
 	return nil
 }
 
-func (r *dbRepository) UpdateExpires(at access_token.AccessToken) *rest_errors.RestErr {
+func (r *dbRepository) UpdateExpires(at access_token.AccessToken) rest_errors.RestErr {
 	session := cassandra.GetSession()
 	if err := session.Query(
 		updateAccessToken, at.Expires, at.AccessToken).Exec(); err != nil {
@@ -62,7 +62,7 @@ func (r *dbRepository) UpdateExpires(at access_token.AccessToken) *rest_errors.R
 	return nil
 }
 
-func (r *dbRepository) LoginUser(string, string) (*users.User, *rest_errors.RestErr) {
+func (r *dbRepository) LoginUser(string, string) (*users.User, rest_errors.RestErr) {
 	return nil, rest_errors.NewNotImplementedError("Not implemented")
 }
 

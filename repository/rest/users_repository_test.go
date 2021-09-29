@@ -8,14 +8,13 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/lavinas-science/learn-oauth-api/domain/access_token"
 	"github.com/lavinas-science/learn-oauth-api/domain/users"
 	"github.com/lavinas-science/learn-utils-go/rest_errors"
 	"github.com/stretchr/testify/assert"
 )
 
 const (
-	mock = false
+	mock = true
 )
 
 func TestMain(m *testing.M) {
@@ -30,11 +29,11 @@ func TestLoginTimeoutFromApi(t *testing.T) {
 	// Mock response
 	httpmock.RegisterResponder("POST", UserBaseURI+UserURI,
 		func(req *http.Request) (*http.Response, error) {
-			var lg access_token.AccessTokenRequest
+			var lg clientRequest
 			if err := json.NewDecoder(req.Body).Decode(&lg); err != nil {
 				return httpmock.NewJsonResponse(http.StatusBadRequest, "Bad request")
 			}
-			us := users.User{Id: 100, FirstName: "First Name", LastName: lg.Password, Email: lg.Username}
+			us := users.User{Id: 100, FirstName: "First Name", LastName: lg.Password, Email: lg.Email}
 			resp, err := httpmock.NewJsonResponse(http.StatusOK, us)
 			if err != nil {
 				return httpmock.NewJsonResponse(http.StatusInternalServerError, "Internal error")
@@ -49,8 +48,8 @@ func TestLoginTimeoutFromApi(t *testing.T) {
 	user, err := rep.LoginUser("login@user.com", "passwd")
 	assert.Nil(t, user)
 	assert.NotNil(t, err)
-	assert.EqualValues(t, http.StatusInternalServerError, err.Status)
-	assert.Contains(t, err.Message, "Login api call error")
+	assert.EqualValues(t, http.StatusInternalServerError, err.Status())
+	assert.Contains(t, err.Message(), "Login api call error")
 }
 
 func TestLoginInvalidErrorInterface(t *testing.T) {
@@ -60,8 +59,8 @@ func TestLoginInvalidErrorInterface(t *testing.T) {
 	user, err := rep.LoginUser("login@user.com", "passwd")
 	assert.Nil(t, user)
 	assert.NotNil(t, err)
-	assert.EqualValues(t, http.StatusInternalServerError, err.Status)
-	assert.EqualValues(t, "invalid rest-client error unmarshall error", err.Message)
+	assert.EqualValues(t, http.StatusInternalServerError, err.Status())
+	assert.EqualValues(t, "invalid rest-client error unmarshall error", err.Message())
 }
 
 func TestLoginInvalidErrorInterface2(t *testing.T) {
@@ -71,8 +70,8 @@ func TestLoginInvalidErrorInterface2(t *testing.T) {
 	user, err := rep.LoginUser("login@user.com", "passwd")
 	assert.Nil(t, user)
 	assert.NotNil(t, err)
-	assert.EqualValues(t, http.StatusInternalServerError, err.Status)
-	assert.EqualValues(t, "invalid rest-client error unmarshall error", err.Message)
+	assert.EqualValues(t, http.StatusInternalServerError, err.Status())
+	assert.EqualValues(t, "invalid rest-client error unmarshall error", err.Message())
 }
 
 func TestLoginInvalidUserInterface(t *testing.T) {
@@ -82,22 +81,22 @@ func TestLoginInvalidUserInterface(t *testing.T) {
 	user, err := rep.LoginUser("login@user.com", "passwd")
 	assert.Nil(t, user)
 	assert.NotNil(t, err)
-	assert.EqualValues(t, http.StatusInternalServerError, err.Status)
-	assert.EqualValues(t, "Invalid rest-client error unmarshall client", err.Message)
+	assert.EqualValues(t, http.StatusInternalServerError, err.Status())
+	assert.EqualValues(t, "invalid rest-client error unmarshall client", err.Message())
 }
 
 func TestLoginInvalidLoginCredentials(t *testing.T) {
 	// Mock response
-	errRest := rest_errors.RestErr{Status: http.StatusNotFound, Error: "not_found", Message: "No record found"}
+	errRest := rest_errors.NewNotFoundError("No record found")
 	resp, _ := httpmock.NewJsonResponder(http.StatusNotFound, errRest)
 	httpmock.RegisterResponder("POST", UserBaseURI+UserURI, resp)
 	rep := NewRepository()
 	user, err := rep.LoginUser("login@user.com", "passwd")
 	assert.Nil(t, user)
 	assert.NotNil(t, err)
-	assert.EqualValues(t, errRest.Status, err.Status)
-	assert.EqualValues(t, errRest.Message, err.Message)
-	assert.EqualValues(t, errRest.Error, err.Error)
+	assert.EqualValues(t, errRest.Status(), err.Status())
+	assert.EqualValues(t, errRest.Message(), err.Message())
+	assert.EqualValues(t, errRest.Error(), err.Error())
 
 }
 
@@ -105,11 +104,11 @@ func TestLoginOk(t *testing.T) {
 	// Mock response
 	httpmock.RegisterResponder("POST", UserBaseURI+UserURI,
 		func(req *http.Request) (*http.Response, error) {
-			var lg access_token.AccessTokenRequest
+			var lg clientRequest
 			if err := json.NewDecoder(req.Body).Decode(&lg); err != nil {
 				return httpmock.NewJsonResponse(http.StatusBadRequest, "Bad request")
 			}
-			us := users.User{Id: 100, FirstName: "First Name", LastName: lg.Password, Email: lg.Username}
+			us := users.User{Id: 100, FirstName: "First Name", LastName: lg.Password, Email: lg.Email}
 			resp, err := httpmock.NewJsonResponse(http.StatusOK, us)
 			if err != nil {
 				return httpmock.NewJsonResponse(http.StatusInternalServerError, "Internal error")
@@ -130,14 +129,14 @@ func TestLoginOk(t *testing.T) {
 
 func TestIntegration(t *testing.T) {
 	httpmock.RegisterResponder("POST", UserBaseURI+UserURI,
-		httpmock.NewStringResponder(http.StatusNotFound, `{"status": 404, "error": "not_found"}`))
+		httpmock.NewStringResponder(http.StatusNotFound, `{"status": 404, "error": "not_found", "message": "not_found"}`))
 	// call func
 	rep := NewRepository()
 	user, err := rep.LoginUser("user@user.com1", "user 1")
 	assert.Nil(t, user)
 	assert.NotNil(t, err)
-	assert.EqualValues(t, err.Status, http.StatusNotFound)
-	assert.EqualValues(t, err.Error, "not_found")
+	assert.EqualValues(t, http.StatusNotFound, err.Status())
+	assert.EqualValues(t,  "message: not_found - status: 404 - error: not_found", err.Error())
 }
 
 func TestPing(t *testing.T) {

@@ -27,10 +27,10 @@ func init() {
 }
 
 type RestUsersRepository interface {
-	GetById(string) (*access_token.AccessToken, *rest_errors.RestErr)
-	Create(access_token.AccessToken) *rest_errors.RestErr
-	UpdateExpires(access_token.AccessToken) *rest_errors.RestErr
-	LoginUser(string, string) (*users.User, *rest_errors.RestErr)
+	GetById(string) (*access_token.AccessToken, rest_errors.RestErr)
+	Create(access_token.AccessToken) rest_errors.RestErr
+	UpdateExpires(access_token.AccessToken) rest_errors.RestErr
+	LoginUser(string, string) (*users.User, rest_errors.RestErr)
 	Ping() bool
 }
 
@@ -46,7 +46,7 @@ func NewRepository() RestUsersRepository {
 	return &restUsersRepository{}
 }
 
-func (r *restUsersRepository) LoginUser(email string, password string) (*users.User, *rest_errors.RestErr) {
+func (r *restUsersRepository) LoginUser(email string, password string) (*users.User, rest_errors.RestErr) {
 	var restErr rest_errors.RestErr
 	var user users.User
 	request := clientRequest{Email: email, Password: password}
@@ -58,26 +58,26 @@ func (r *restUsersRepository) LoginUser(email string, password string) (*users.U
 		return nil, rest_errors.NewInternalServerError("Login api call error")
 	}
 	if resp.RawResponse.StatusCode > 299 {
-		if err := json.Unmarshal(resp.Body(), &restErr); err != nil {
+		if restErr, err = rest_errors.NewRestErrorFromBytes(resp.Body()); err != nil {
 			return nil, rest_errors.NewInternalServerError("invalid rest-client error unmarshall error")
 		}
-		return nil, &restErr
+		return nil, restErr
 	}
 	if err := json.Unmarshal(resp.Body(), &user); err != nil {
-		return nil, rest_errors.NewInternalServerError("Invalid rest-client error unmarshall client")
+		return nil, rest_errors.NewInternalServerError("invalid rest-client error unmarshall client")
 	}
 	return &user, nil
 }
 
-func (r *restUsersRepository) GetById(string) (*access_token.AccessToken, *rest_errors.RestErr) {
+func (r *restUsersRepository) GetById(string) (*access_token.AccessToken, rest_errors.RestErr) {
 	return nil, rest_errors.NewNotImplementedError("Not implemented")
 }
 
-func (r *restUsersRepository) Create(access_token.AccessToken) *rest_errors.RestErr {
+func (r *restUsersRepository) Create(access_token.AccessToken) rest_errors.RestErr {
 	return rest_errors.NewNotImplementedError("Not implemented")
 }
 
-func (r *restUsersRepository) UpdateExpires(access_token.AccessToken) *rest_errors.RestErr {
+func (r *restUsersRepository) UpdateExpires(access_token.AccessToken) rest_errors.RestErr {
 	return rest_errors.NewNotImplementedError("Not implemented")
 }
 
